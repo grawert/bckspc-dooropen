@@ -5,12 +5,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="apple-touch-icon-precomposed" href="static/bckspc-touch-icon.png" />
         <title>Backspace Dooropener</title>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <script src="/static/jquery.min.js"></script>
         <style>
             * {
                 margin: 0;
                 padding: 0;
-                font-family: Verdana;
+                font-family: Verdana, Tahoma, Sans-serif;
                 font-weight: normal;
             }
 
@@ -32,17 +32,36 @@
             #pin-form {
                 margin: 0 auto;
                 text-align: center;
+                padding: 10px;
             }
 
-            #pin-field {
-                width: 80%;
-                font-size: 450%;
+            #pin-field, #pin-form select {
+                width: 100%;
+                margin: 10px 0;
             }
 
             .pin-submit {
-                height: 52px;
-                width: 80%;
-                margin: 10px;
+                display: inline-block;
+                width: 48.99%;
+                height: 50px;
+
+                border-radius: 7px;
+                font-size: 24px;
+            }
+
+            .pin-submit[value="Open"] {
+                border: 1px solid #37BC9B;
+                background-color: #48CFAD;
+            }
+
+            .pin-submit[value="Close"] {
+                border: 1px solid #E9573F;
+                background-color: #FC6E51;
+            }
+
+            #pin-field, #user-id {
+                height: 50px;
+                font-size: 200%;
             }
 
 
@@ -51,15 +70,43 @@
         <script type="text/javascript">
             $(function(){
 
+                function setCookie(c_name, value, exdays) {
+                    var exdate = new Date();
+                    exdate.setDate(exdate.getDate() + exdays);
+                    var c_value = escape(value) + ((exdays == null) ? "" : "; expires=" + exdate.toUTCString());
+                    document.cookie = c_name + "=" + c_value;
+                }
+
+                function getCookie(c_name) {
+                    var i, x, y, ARRcookies = document.cookie.split(";");
+                    for (i = 0; i < ARRcookies.length; i++) {
+                        x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+                        y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+                        x = x.replace(/^\s+|\s+$/g, "");
+                        if (x == c_name) {
+                            return unescape(y);
+                        }
+                    }
+                }
+
+                var userid = getCookie('userid');
+                $('#user-id').val(userid);
+
                 var lock = false;
 
                 $('.pin-submit').click( function() {
 
+                    var userid = parseInt($('#user-id').val());
                     var password = $('#pin-field').val();
                     var opentype = $(this).attr('value');
 
                     if( lock ) {
                         alert("It seems that you have nervous fingers. keep calm!");
+                        return false;
+                    }
+
+                    if(userid === -1) {
+                        alert("You have to choose an username to open/close the door");
                         return false;
                     }
 
@@ -71,10 +118,13 @@
                         $('.pin-submit').removeAttr('disabled');
                     }, 3500 );
 
-                    $.post('/verify', {'password': password, 'type': opentype }, function(result) {
+                    $.post('/verify', {'userid': userid, 'password': password, 'type': opentype }, function(result) {
 
                         if( result ) {
                             if( result.response ) {
+
+                                setCookie('userid', userid, 1337);
+
                                 if( opentype == 'Open' ) {
                                     alert("Your door should open now");    
                                 } else {
@@ -88,15 +138,15 @@
                                         alert("One does not simply walk into backspace");
                                         break;
                                     case 1:
-                                        alert("None shall pass!")
+                                        alert("None shall pass!");
                                         break;
                                     case 2:
-                                        alert("I'm afraid i can't do that")
+                                        alert("I'm afraid i can't do that");
                                         break;
                                 }
                             }
                         } else {
-                            alert('WTF? Something is wrong on the internetz.')    
+                            alert('WTF? Something is wrong on the internetz.');
                         }
                     });
 
@@ -108,10 +158,17 @@
     <body>
 
         <div id="content">
-            <h1><img src="/static/backspace.png" height="35" alt="Backspace"> <span>- Door</span></h1>
+            <h1>
+                <img src="/static/backspace.png" height="35" alt="Backspace"> <span>- Door</span>
+            </h1>
 
-            <h2>Enter your pin:</h2>
             <div id="pin-form">
+                <select name="user-id" id="user-id">
+                        <option value="-1">Choose nickname</option>
+                    {% for user in users: %}
+                        <option value="{{user.id}}">{{user.nickname}}</option>
+                    {% endfor %}
+                </select>
                 <input type="password" name="pin-field" id="pin-field"><br>
                 <input type="submit" class="pin-submit" name="opentype" value="Open">
                 <input type="submit" class="pin-submit" name="opentype" value="Close">

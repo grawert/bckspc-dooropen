@@ -17,7 +17,8 @@ lock = threading.Lock()
 
 @app.route('/')
 def page_main():
-    return render_template('door.html')
+    users = db.session.execute("select id, nickname from users where active = 1 ORDER by nickname",).fetchall()
+    return render_template('door.html', users=users)
 
 @app.route('/verify', methods=["POST"])
 def ajax_verify():
@@ -26,9 +27,10 @@ def ajax_verify():
         return "Password field missing", 200
 
     password = request.form.get('password')
+    userid = request.form.get('userid')
     opentype = request.form.get('type')
 
-    userid = db.session.execute("select id from users where active = 1 AND passwd = SHA2( CONCAT( salt, :pw ), 256 ) LIMIT 1", {'pw': password} ).scalar()
+    userid = db.session.execute("select id from users where active = 1 AND id = :id AND passwd = SHA2( CONCAT( salt, :pw ), 256 ) LIMIT 1", {'id': userid, 'pw': password} ).scalar()
     if userid:
 
         if settings.logging:
@@ -50,5 +52,5 @@ def ajax_verify():
 
 if __name__ == '__main__':
     app.debug = True
-    app.run( )
+    app.run(host='0.0.0.0')
 
