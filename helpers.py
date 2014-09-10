@@ -61,15 +61,12 @@ class DoorOperation(threading.Thread):
     def __switch_relais(self, relais, on):
 
         url = settings.relais['url'] + '/relais/' + str(relais)
-        print url
         basic_auth = HTTPBasicAuth(settings.relais['user'], settings.relais['passwd'])
 
         if on:
             response = requests.post(url, auth=basic_auth)
         else:
             response = requests.delete(url, auth=basic_auth)
-
-        print response
 
 
 def get_members(con):

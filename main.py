@@ -36,7 +36,7 @@ def ajax_verify():
     if helpers.verify_password(ldap_con, uid, password):
 
         if settings.logging:
-            db_cursor.execute("INSERT INTO doorlog (type, uid, created) VALUES (:type, :uid, NOW())", {'type': opentype, 'uid': userid })
+            db_cursor.execute("INSERT INTO doorlog (type, uid, created) VALUES (%s, %s, NOW())", (opentype, uid))
             db.commit()
 
         if opentype == 'Open':
