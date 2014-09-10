@@ -1,0 +1,56 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: Verdana, Tahoma, Sans-serif;
+    font-weight: normal;
+}
+
+h1 {
+    background-color: #1d4d99;
+    padding: 10px;
+    line-height: 35px;
+    color: #fff;
+}
+
+h2 {
+    margin: 15px;    
+}
+
+h1 img, h1 span {
+    vertical-align: middle;    
+}
+
+#pin-form {
+    margin: 0 auto;
+    text-align: center;
+    padding: 10px;
+}
+
+#pin-field, #pin-form select {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.pin-submit {
+    display: inline-block;
+    width: 48.99%;
+    height: 50px;
+
+    border-radius: 7px;
+    font-size: 24px;
+}
+
+.pin-submit[value="Open"] {
+    border: 1px solid #37BC9B;
+    background-color: #48CFAD;
+}
+
+.pin-submit[value="Close"] {
+    border: 1px solid #E9573F;
+    background-color: #FC6E51;
+}
+
+#pin-field, #user-id {
+    height: 50px;
+    font-size: 200%;
+}

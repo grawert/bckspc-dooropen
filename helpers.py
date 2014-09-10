@@ -1,53 +1,108 @@
-import settings
 import threading
+import settings
+import requests
+import hashlib
+import base64
+import Queue
 import time
-from relais_client import RelaisClient
+import ldap
+import ldap.filter
+import re
 
+from requests.auth import HTTPBasicAuth
 
 class DoorOperation(threading.Thread):
 
-    def __init__(self, lock, op):
-        self.lock = lock
-        self.op = op
-
+    def __init__(self):
+        self.queue = Queue.Queue(1)
         super(DoorOperation, self).__init__()
-    
+
     def run(self):
 
-        if not self.lock.acquire( False ):
-            return False
+        while True:
+            if self.queue.get():
+                self.__unlock()
+            else:
+                self.__lock()
 
-        pp = RelaisClient( settings.relais_host, settings.relais_port, username=settings.relais_user, password=settings.relais_pass )
+            self.queue.task_done()
 
-        if self.op == True:
-            self.open_door( pp )   
-        elif self.op == False:
-            self.close_door( pp )
+    def open_door(self):
+        self.queue.put(True)
 
-        self.lock.release()
+    def close_door(self):
+        self.queue.put(False)
 
+    def __unlock(self):
 
-    def open_door(self, pp):
+        functions = settings.relais['functions']
 
         # set door summer
-        pp.setPort(2, 1)
+        self.__switch_relais(functions['buzzer'], True)
 
-        #open the door
-        pp.setPort(0, 1)
+        # open the door
+        self.__switch_relais(functions['open'], True)
         time.sleep(0.1)
-        pp.setPort(0, 0)
+        self.__switch_relais(functions['open'], False)
 
-
-        # stop door summer
+        # stop door buzzer
         time.sleep(3)
-        pp.setPort(2, 0)
+        self.__switch_relais(functions['buzzer'], False)
 
+    def __lock(self):
 
-    def close_door(self, pp):
-        
-        #close the door
-        pp.setPort(1, 1)
+        functions = settings.relais['functions']
+
+        # close the door
+        self.__switch_relais(functions['close'], True)
         time.sleep(0.1)
-        pp.setPort(1, 0)
+        self.__switch_relais(functions['close'], False)
 
+    def __switch_relais(self, relais, on):
+
+        url = settings.relais['url'] + '/relais/' + str(relais)
+        print url
+        basic_auth = HTTPBasicAuth(settings.relais['user'], settings.relais['passwd'])
+
+        if on:
+            response = requests.post(url, auth=basic_auth)
+        else:
+            response = requests.delete(url, auth=basic_auth)
+
+        print response
+
+
+def get_members(con):
+    entries = con.search_s('ou=member,dc=backspace', ldap.SCOPE_SUBTREE, '(&(objectClass=backspaceMember)(serviceEnabled=door))', ['uid'])
+
+    users = []
+    for entry in entries:
+        data = entry[1]
+        users.append(data['uid'][0])
+
+    return sorted(users)
+
+def verify_password(con, uid, password):
+
+    uid = ldap.filter.escape_filter_chars(uid)
+
+    entries = con.search_s('ou=member,dc=backspace', ldap.SCOPE_SUBTREE, '(&(objectClass=backspaceMember)(serviceEnabled=door)(uid=%s))' % (uid,), ['doorPassword'])
+
+    if len(entries) > 1 or len(entries) == 0:
+        return False
+
+    entry = entries[0][1]
+
+    m = re.search(r'^{SSHA512}(.*)$', entry['doorPassword'][0])
+    if not m:
+        return False
+
+    decoded = base64.b64decode(m.group(1))
+
+    sha512 = decoded[:64] # hash is 64 byte (512 bit) long
+    salt = decoded[64:] # everything else is salt
+
+    mypass = hashlib.sha512(password + salt).digest()
+
+    return (sha512 == mypass)
 
