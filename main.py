@@ -37,7 +37,7 @@ def ajax_verify():
 
         if settings.logging:
             db_cursor.execute("INSERT INTO doorlog (type, uid, created) VALUES (:type, :uid, NOW())", {'type': opentype, 'uid': userid })
-            db.session.commit()
+            db.commit()
 
         if opentype == 'Open':
             door_operator.open_door()
