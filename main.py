@@ -12,8 +12,8 @@ ldap_con = ldap.initialize(settings.ldap['uri'])
 ldap_con.protocol_version = ldap.VERSION3
 ldap_con.bind(settings.ldap['dn'], settings.ldap['password'])
 
-#db = MySQLdb.connect(**settings.mysql)
-#db_cursor = db.cursor()
+db = MySQLdb.connect(**settings.mysql)
+db_cursor = db.cursor()
 
 door_operator = helpers.DoorOperation()
 door_operator.start()
@@ -35,9 +35,9 @@ def ajax_verify():
 
     if helpers.verify_password(ldap_con, uid, password):
 
-#        if settings.logging:
-#            db_cursor.execute("INSERT INTO doorlog (type, uid, created) VALUES (:type, :uid, NOW())", {'type': opentype, 'uid': userid })
-#            db.session.commit()
+        if settings.logging:
+            db_cursor.execute("INSERT INTO doorlog (type, uid, created) VALUES (:type, :uid, NOW())", {'type': opentype, 'uid': userid })
+            db.session.commit()
 
         if opentype == 'Open':
             door_operator.open_door()
