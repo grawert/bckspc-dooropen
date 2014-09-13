@@ -8,10 +8,6 @@ import ldap
 
 app = Flask(__name__)
 
-ldap_con = ldap.initialize(settings.ldap['uri'])
-ldap_con.protocol_version = ldap.VERSION3
-ldap_con.bind(settings.ldap['dn'], settings.ldap['password'])
-
 db = MySQLdb.connect(**settings.mysql)
 db_cursor = db.cursor()
 
@@ -20,7 +16,7 @@ door_operator.start()
 
 @app.route('/')
 def page_main():
-    users = helpers.get_members(ldap_con)
+    users = helpers.get_members()
     return render_template('door.html', users=users)
 
 @app.route('/verify', methods=["POST"])
@@ -33,7 +29,7 @@ def ajax_verify():
     password = request.form.get('password')
     opentype = request.form.get('type')
 
-    if helpers.verify_password(ldap_con, uid, password):
+    if helpers.verify_password(uid, password):
 
         if settings.logging:
             db_cursor.execute("INSERT INTO doorlog (type, uid, created) VALUES (%s, %s, NOW())", (opentype, uid))

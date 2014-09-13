@@ -68,8 +68,16 @@ class DoorOperation(threading.Thread):
         else:
             response = requests.delete(url, auth=basic_auth)
 
+def get_ldap_connection():
 
-def get_members(con):
+    ldap_con = ldap.initialize(settings.ldap['uri'])
+    ldap_con.protocol_version = ldap.VERSION3
+    ldap_con.bind(settings.ldap['dn'], settings.ldap['password'])
+
+    return ldap_con
+
+def get_members():
+    con = get_ldap_connection()
     entries = con.search_s('ou=member,dc=backspace', ldap.SCOPE_SUBTREE, '(&(objectClass=backspaceMember)(serviceEnabled=door))', ['uid'])
 
     users = []
@@ -79,8 +87,9 @@ def get_members(con):
 
     return sorted(users)
 
-def verify_password(con, uid, password):
+def verify_password(uid, password):
 
+    con = get_ldap_connection()
     uid = ldap.filter.escape_filter_chars(uid)
 
     entries = con.search_s('ou=member,dc=backspace', ldap.SCOPE_SUBTREE, '(&(objectClass=backspaceMember)(serviceEnabled=door)(uid=%s))' % (uid,), ['doorPassword'])
