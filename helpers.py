@@ -14,7 +14,7 @@ from requests.auth import HTTPBasicAuth
 class DoorOperation(threading.Thread):
 
     def __init__(self):
-        self.queue = Queue.Queue(1)
+        self.queue = Queue.Queue(10)
         super(DoorOperation, self).__init__()
 
     def run(self):
