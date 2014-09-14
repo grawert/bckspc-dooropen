@@ -2,9 +2,7 @@ from flask import Flask, render_template, jsonify, request
 
 import datetime
 import settings
-import MySQLdb
 import helpers
-import ldap
 
 app = Flask(__name__)
 

@@ -2,6 +2,7 @@ import threading
 import settings
 import requests
 import hashlib
+import MySQLdb
 import base64
 import Queue
 import time
