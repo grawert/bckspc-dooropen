@@ -68,6 +68,16 @@ class DoorOperation(threading.Thread):
         else:
             response = requests.delete(url, auth=basic_auth)
 
+
+def log_action(opentype, uid):
+    db = MySQLdb.connect(**settings.mysql)
+
+    db_cursor = db.cursor()
+    db_cursor.execute("INSERT INTO doorlog (type, uid, created) VALUES (%s, %s, NOW())", (opentype, uid))
+
+    db.commit()
+
+
 def get_ldap_connection():
 
     ldap_con = ldap.initialize(settings.ldap['uri'])
