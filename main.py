@@ -7,7 +7,6 @@ import helpers
 app = Flask(__name__)
 
 door_operator = helpers.DoorOperation()
-door_operator.start()
 
 @app.route('/')
 def page_main():
