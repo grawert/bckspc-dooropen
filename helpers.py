@@ -18,6 +18,9 @@ class DoorOperation(threading.Thread):
         self.queue = Queue.Queue(10)
         super(DoorOperation, self).__init__()
 
+        self.setDaemon(True)
+        self.start()
+
     def run(self):
 
         while True:
