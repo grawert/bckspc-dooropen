@@ -1,12 +1,11 @@
 from flask import Flask, render_template, jsonify, request
 
-import datetime
-import settings
 import helpers
 
 app = Flask(__name__)
 
 door_operator = helpers.DoorOperation()
+door_operator_projektraum = helpers.DoorOperationProjektraum()
 
 @app.route('/')
 def page_main():
@@ -29,8 +28,10 @@ def ajax_verify():
 
         if opentype == 'Open':
             door_operator.open_door()
+            door_operator_projektraum.open_door()
         elif opentype == 'Close':
             door_operator.close_door()
+            door_operator_projektraum.close_door()
 
         return jsonify(response=True)
 
