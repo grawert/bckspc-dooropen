@@ -12,60 +12,6 @@ import re
 
 from requests.auth import HTTPBasicAuth
 
-class DoorOperationProjektraum(threading.Thread):
-
-    def __init__(self):
-        self.queue = Queue.Queue(10)
-        super(DoorOperationProjektraum, self).__init__()
-
-        self.setDaemon(True)
-        self.start()
-
-    def run(self):
-
-        while True:
-            if self.queue.get():
-                self.__unlock()
-            else:
-                self.__lock()
-
-            self.queue.task_done()
-
-    def open_door(self):
-        self.queue.put(True)
-
-    def close_door(self):
-        self.queue.put(False)
-
-    def __unlock(self):
-
-        functions = settings.relais_projektraum['functions']
-        # open the door
-        self.__switch_relais(functions['open'], True)
-        time.sleep(0.1)
-        self.__switch_relais(functions['open'], False)
-
-    def __lock(self):
-
-        functions = settings.relais_projektraum['functions']
-
-        # close the door
-        self.__switch_relais(functions['close'], True)
-        time.sleep(0.1)
-        self.__switch_relais(functions['close'], False)
-
-    def __switch_relais(self, relais, on):
-
-        url = settings.relais_projektraum['url'] + '/relais/' + str(relais)
-        basic_auth = HTTPBasicAuth(settings.relais_projektraum['user'], settings.relais_projektraum['passwd'])
-
-        if on:
-            response = requests.post(url, auth=basic_auth)
-        else:
-            response = requests.delete(url, auth=basic_auth)
-
-
-
 class DoorOperation(threading.Thread):
 
     def __init__(self):

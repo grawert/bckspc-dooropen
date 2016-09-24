@@ -11,16 +11,6 @@ relais = {
     }
 }
 
-relais_projektraum = {
-    'url': 'https://webrelais.projektraum.core.bckspc.de',
-    'user': 'foobar',
-    'passwd': 'bar',
-    'functions': {
-        'open': 3,
-        'close': 4,
-    }
-}
-
 mysql = {
     'host': 'mysql.at.home',
     'user': 'dbuser',
