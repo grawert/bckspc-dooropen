@@ -3,4 +3,5 @@ env
 *.pyc
 *~
 *.swp
+.idea
 settings.py
