@@ -15,7 +15,8 @@ mysql = {
     'host': 'mysql.at.home',
     'user': 'dbuser',
     'passwd': 'dbpass',
-    'db': 'dbdbdb'
+    'db': 'dbdbdb',
+    'table': 'dooropen'
 }
 
 ldap = {

@@ -79,7 +79,7 @@ def log_action(opentype, uid):
     db = MySQLdb.connect(**settings.mysql)
 
     db_cursor = db.cursor()
-    db_cursor.execute("INSERT INTO doorlog (type, uid, created) VALUES (%s, %s, NOW())", (opentype, uid))
+    db_cursor.execute("INSERT INTO %s (type, uid, created) VALUES (%s, %s, NOW())", (settings.mysql.table, opentype, uid))
 
     db.commit()
 
