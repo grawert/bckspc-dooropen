@@ -76,7 +76,7 @@ class DoorOperation(threading.Thread):
 
 
 def log_action(opentype, uid):
-    db = MySQLdb.connect(**settings.mysql)
+    db = MySQLdb.connect(host=settings.host, user=settings.user, passwd=settings.passwd, db=settings.db)
 
     db_cursor = db.cursor()
     db_cursor.execute("INSERT INTO %s (type, uid, created) VALUES (%s, %s, NOW())", (settings.mysql.table, opentype, uid))
