@@ -80,7 +80,7 @@ def log_action(opentype, uid):
                          passwd=settings.mysql['passwd'], db=settings.mysql['db'])
 
     db_cursor = db.cursor()
-    db_cursor.execute("INSERT INTO %s (type, uid, created) VALUES (%s, %s, NOW())", (settings.mysql['table'], opentype, uid))
+    db_cursor.execute("INSERT INTO " + settings.mysql['table'] + " (type, uid, created) VALUES (%s, %s, NOW())", (opentype, uid))
 
     db.commit()
 
