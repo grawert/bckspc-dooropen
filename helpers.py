@@ -42,7 +42,8 @@ class DoorOperation(threading.Thread):
         functions = settings.relais['functions']
 
         # set door summer
-        self.__switch_relais(functions['buzzer'], True)
+        if 'buzzer' in functions:
+            self.__switch_relais(functions['buzzer'], True)
 
         # open the door
         self.__switch_relais(functions['open'], True)
@@ -50,8 +51,9 @@ class DoorOperation(threading.Thread):
         self.__switch_relais(functions['open'], False)
 
         # stop door buzzer
-        time.sleep(3)
-        self.__switch_relais(functions['buzzer'], False)
+        if 'buzzer' in functions:
+            time.sleep(3)
+            self.__switch_relais(functions['buzzer'], False)
 
     def __lock(self):
 
@@ -77,7 +79,7 @@ def log_action(opentype, uid):
     db = MySQLdb.connect(**settings.mysql)
 
     db_cursor = db.cursor()
-    db_cursor.execute("INSERT INTO doorlog (type, uid, created) VALUES (%s, %s, NOW())", (opentype, uid))
+    db_cursor.execute("INSERT INTO %s (type, uid, created) VALUES (%s, %s, NOW())", (settings.mysql.table, opentype, uid))
 
     db.commit()
 
