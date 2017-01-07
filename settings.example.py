@@ -23,6 +23,6 @@ ldap = {
     'uri': 'ldaps://ldap.at.home',
     'port': 636,
     'dn': 'cn=reader,ou=ldapuser,dc=yourDC',
-    'password': 'ldappass'
+    'password': 'ldappass',
 }
 

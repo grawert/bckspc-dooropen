@@ -89,7 +89,7 @@ def get_ldap_connection():
 
     if 'CAFile' in settings.ldap:
         ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
-        ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, settings.ldap['CAFile']
+        ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, settings.ldap['CAFile'])
 
     ldap_con = ldap.initialize(settings.ldap['uri'])
     ldap_con.protocol_version = ldap.VERSION3
