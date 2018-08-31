@@ -96,9 +96,10 @@ def get_ldap_connection():
 
 def get_members():
     con = get_ldap_connection()
-    basedn = settings.ldap['dyngroup']
-    user_id = settings.ldap['user_id']
-    entries = con.search_s(basedn, ldap.SCOPE_SUBTREE, 'objectclass=groupOfURLs', [user_id])
+    basedn = settings.ldap['members_container']
+    search_filter = 'objectClass=%s' % settings.ldap['members_container_class']
+    user_id = settings.ldap['user_id_attribute']
+    entries = con.search_s(basedn, ldap.SCOPE_SUBTREE, search_filter, [user_id])
 
     users = []
     for entry in entries:
@@ -110,7 +111,7 @@ def get_members():
 def verify_password(uid, password):
     uid = ldap.filter.escape_filter_chars(uid)
     basedn = settings.ldap['users_container']
-    user_id = settings.ldap['user_id']
+    user_id = settings.ldap['user_id_attribute']
     userdn = '%s=%s,%s' % (user_id, uid, basedn)
 
     verified = False

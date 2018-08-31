@@ -15,10 +15,11 @@ relais = {
 ldap = {
     'uri': 'ldaps://localhost',
     'port': 636,
-    'dn': 'cn=reader,ou=users,dc=b1-systems,dc=de',
+    'dn': 'uid=reader,ou=users,dc=b1-systems,dc=de',
     'password': 'secret',
-    'dyngroup': 'cn=dooropen,ou=groups,dc=b1-systems,dc=de',
+    'members_container': 'cn=dooropen,ou=groups,dc=b1-systems,dc=de',
+    'members_container_class': 'groupOfURLs',
     'users_container': 'ou=users,dc=b1-systems,dc=de',
-    'user_id': 'uid',
+    'user_id_attribute': 'uid',
 }
 
