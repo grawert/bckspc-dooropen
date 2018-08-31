@@ -70,7 +70,9 @@ $(function() {
 
             setCookie('uid', uid, 1337);
 
-            if(opentype == 'Open') {
+            if(opentype == 'Buzzer') {
+                alert("The buzzer should ring now");
+	    } else if(opentype == 'Open') {
                 alert("Your door should open now");
             } else {
                 alert("Your door should lock now");

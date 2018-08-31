@@ -40,6 +40,11 @@ h1 img, h1 span {
     font-size: 24px;
 }
 
+.pin-submit[value="Buzzer"] {
+    border: 1px solid #000;
+    background-color: #FCBD2B;
+}
+
 .pin-submit[value="Open"] {
     border: 1px solid #37BC9B;
     background-color: #48CFAD;

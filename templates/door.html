@@ -16,7 +16,7 @@
 
         <div id="content">
             <h1>
-                <img src="/static/b1_logo.png" alt="B1 Logo"> <span>- Door</span>
+                <img src="/static/b1_logo.png" alt="B1 Logo"> <span>- Office Door Opener</span>
             </h1>
 
             <div id="pin-form">
@@ -27,8 +27,11 @@
                     {% endfor %}
                 </select>
                 <input type="password" name="pin-field" id="pin-field"><br>
+                <input type="submit" class="pin-submit" name="opentype" value="Buzzer">
+		<!--
                 <input type="submit" class="pin-submit" name="opentype" value="Open">
                 <input type="submit" class="pin-submit" name="opentype" value="Close">
+		-->
             </div>
 
         </div>
