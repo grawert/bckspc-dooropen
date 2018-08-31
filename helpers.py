@@ -1,14 +1,11 @@
 import threading
 import settings
 import requests
-import hashlib
 import syslog
-import base64
 import Queue
 import time
 import ldap
 import ldap.filter
-import re
 
 from requests.auth import HTTPBasicAuth
 
