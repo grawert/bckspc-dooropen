@@ -80,9 +80,9 @@ def log_action(opentype, uid):
     if settings.logging == True:
         syslog.syslog(syslog.LOG_INFO, ("%s: %s" % (opentype, uid)))
 
-def log_auth_fail(uid):
+def log_auth_fail(uid, reason):
     if settings.logging == True:
-        msg = "Password verification failed: %s" % uid
+        msg = "Password verification failed: %s [%s]" % (uid, reason)
         syslog.syslog(syslog.LOG_WARNING, msg)
 
 def get_ldap_connection():
@@ -119,12 +119,15 @@ def verify_password(uid, password):
     verified = False
 
     try:
+        if uid not in get_members():
+            raise Exception('User not found in members group')
+
         ldap_con = ldap.initialize(settings.ldap['uri'])
         ldap_con.protocol_version = ldap.VERSION3
         ldap_con.bind_s(userdn, password)
         ldap_con.unbind()
-    except:
-        log_auth_fail(uid)
+    except Exception as error:
+        log_auth_fail(uid, repr(error))
     else:
         verified = True
 
