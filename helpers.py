@@ -2,7 +2,7 @@ import threading
 import settings
 import requests
 import hashlib
-import MySQLdb
+import syslog
 import base64
 import Queue
 import time
@@ -11,6 +11,8 @@ import ldap.filter
 import re
 
 from requests.auth import HTTPBasicAuth
+
+syslog.openlog(settings.logging_ident)
 
 class DoorOperation(threading.Thread):
 
@@ -74,16 +76,14 @@ class DoorOperation(threading.Thread):
         else:
             response = requests.delete(url, auth=basic_auth)
 
-
 def log_action(opentype, uid):
-    db = MySQLdb.connect(host=settings.mysql['host'], user=settings.mysql['user'],
-                         passwd=settings.mysql['passwd'], db=settings.mysql['db'])
+    if settings.logging == True:
+        syslog.syslog(syslog.LOG_INFO, ("%s: %s" % (opentype, uid)))
 
-    db_cursor = db.cursor()
-    db_cursor.execute("INSERT INTO " + settings.mysql['table'] + " (type, uid, created) VALUES (%s, %s, NOW())", (opentype, uid))
-
-    db.commit()
-
+def log_auth_fail(uid):
+    if settings.logging == True:
+        msg = "Password verification failed: %s" % uid
+        syslog.syslog(syslog.LOG_WARNING, msg)
 
 def get_ldap_connection():
 
@@ -93,43 +93,40 @@ def get_ldap_connection():
 
     ldap_con = ldap.initialize(settings.ldap['uri'])
     ldap_con.protocol_version = ldap.VERSION3
-    ldap_con.bind(settings.ldap['dn'], settings.ldap['password'])
+    ldap_con.bind_s(settings.ldap['dn'], settings.ldap['password'])
 
     return ldap_con
 
 def get_members():
     con = get_ldap_connection()
-    entries = con.search_s('ou=member,dc=backspace', ldap.SCOPE_SUBTREE, '(&(objectClass=backspaceMember)(serviceEnabled=door))', ['uid'])
+    basedn = settings.ldap['dyngroup']
+    user_id = settings.ldap['user_id']
+    entries = con.search_s(basedn, ldap.SCOPE_SUBTREE, 'objectclass=groupOfURLs', [user_id])
 
     users = []
     for entry in entries:
         data = entry[1]
-        users.append(data['uid'][0])
+        users = data[user_id]
 
     return sorted(users)
 
 def verify_password(uid, password):
-
-    con = get_ldap_connection()
     uid = ldap.filter.escape_filter_chars(uid)
+    basedn = settings.ldap['users_container']
+    user_id = settings.ldap['user_id']
+    userdn = '%s=%s,%s' % (user_id, uid, basedn)
 
-    entries = con.search_s('ou=member,dc=backspace', ldap.SCOPE_SUBTREE, '(&(objectClass=backspaceMember)(serviceEnabled=door)(uid=%s))' % (uid,), ['doorPassword'])
+    verified = False
 
-    if len(entries) > 1 or len(entries) == 0:
-        return False
+    try:
+        ldap_con = ldap.initialize(settings.ldap['uri'])
+        ldap_con.protocol_version = ldap.VERSION3
+        ldap_con.bind_s(userdn, password)
+        ldap_con.unbind()
+    except:
+        log_auth_fail(uid)
+    else:
+        verified = True
 
-    entry = entries[0][1]
-
-    m = re.search(r'^{SSHA512}(.*)$', entry['doorPassword'][0])
-    if not m:
-        return False
-
-    decoded = base64.b64decode(m.group(1))
-
-    sha512 = decoded[:64] # hash is 64 byte (512 bit) long
-    salt = decoded[64:] # everything else is salt
-
-    mypass = hashlib.sha512(password + salt).digest()
-
-    return (sha512 == mypass)
+    return verified
 
