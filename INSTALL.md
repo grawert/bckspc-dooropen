@@ -1,18 +1,18 @@
 # Door unlocking via web interface using LDAP authentication
 
-## Install software requirements for pip
+## Install software requirements
 
     sudo apt-get install build-essential libsasl2-dev python-dev libldap2-dev libssl-dev python-pip
-    pip install flask
+    pip install -r requirements.txt
 
 ## Install OpenLDAP Server
 
     sudo apt-get install ldap-server ldap-client ldap-utils
 
-### Create new database in LDAP
+### Create new database in OpenLDAP
 
 ```
-ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
+sudo ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
 
 dn: olcDatabase=mdb,cn=config
 objectClass: olcMdbConfig
@@ -31,10 +31,10 @@ olcAccess: to * by * read
 EOF
 ```
 
-### Add dynamic groups to LDAP schema
+### Add dynamic groups to OpenLDAP schema
 
 ```
-ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
+sudo ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
 
 dn: cn=module{0},cn=config
 changetype: modify
@@ -45,11 +45,11 @@ EOF
 ```
 
 ```
-ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/dyngroup.ldif
-´´´
+sudo ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/dyngroup.ldif
+```
 
-´´´
-ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
+```
+sudo ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
 
 dn: olcOverlay=dynlist,olcDatabase={2}mdb,cn=config
 objectClass: olcOverlayConfig
@@ -62,7 +62,7 @@ EOF
 ### Create containers and users
 
 ```
-ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
+sudo ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
 
 dn: dc=b1-systems,dc=de
 dc: b1-systems
