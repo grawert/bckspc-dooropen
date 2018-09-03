@@ -2,8 +2,8 @@ logging = True
 logging_ident = "opensesame"
 
 relais = {
-    'url': 'https://localhost',
-    'user': 'foobar',
+    'url': 'http://localhost:5021/buzzer',
+    'user': 'foo',
     'passwd': 'bar',
     'functions': {
         'open': 3,
@@ -22,4 +22,3 @@ ldap = {
     'users_container': 'ou=users,dc=b1-systems,dc=de',
     'user_id_attribute': 'uid',
 }
-
