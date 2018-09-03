@@ -1,0 +1,14 @@
+[uwsgi]
+master = True
+cheap = True
+
+processes = 4
+threads = 2
+
+die-on-idle = True
+manage-script-name = True
+
+plugins = python
+
+module = wsgi
+callable = app
