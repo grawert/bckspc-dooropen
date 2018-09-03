@@ -65,7 +65,7 @@ class DoorOperation(threading.Thread):
 
     def __switch_relais(self, relais, on):
 
-        url = settings.relais['url'] + '/relais/' + str(relais)
+        url = settings.relais['url'] + str(relais)
         basic_auth = HTTPBasicAuth(settings.relais['user'], settings.relais['passwd'])
 
         if on:

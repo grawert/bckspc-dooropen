@@ -2,13 +2,13 @@ logging = True
 logging_ident = "opensesame"
 
 relais = {
-    'url': 'http://localhost:5021/buzzer',
+    'url': 'http://localhost:5021/',
     'user': 'foo',
     'passwd': 'bar',
     'functions': {
-        'open': 3,
-        'close': 4,
-        'buzzer': 5
+        'open': 'door_open',
+        'close': 'door_close',
+        'buzzer': 'buzzer',
     }
 }
 
