@@ -55,7 +55,7 @@ $(function() {
                 switch(Math.floor(Math.random()*3)) {
                     default:
                     case 0:
-                        alert("One does not simply walk into backspace");
+                        alert("One does not simply walk into The Office");
                         break;
                     case 1:
                         alert("None shall pass!");
@@ -71,7 +71,7 @@ $(function() {
             setCookie('uid', uid, 1337);
 
             if(opentype == 'Buzzer') {
-                alert("The buzzer should ring now");
+                alert("Come in Old Friend");
 	    } else if(opentype == 'Open') {
                 alert("Your door should open now");
             } else {
