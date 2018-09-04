@@ -25,7 +25,9 @@ def ajax_verify():
 
         helpers.log_action(opentype, uid)
 
-        if opentype == 'Open':
+        if opentype == 'Buzzer':
+            door_operator.open_door()
+        elif opentype == 'Open':
             door_operator.open_door()
         elif opentype == 'Close':
             door_operator.close_door()
