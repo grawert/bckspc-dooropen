@@ -1,14 +1,15 @@
 [uwsgi]
 master = True
-cheap = True
 
-processes = 4
+workers = 1
 threads = 2
+lazy = True
+
+uid = www-data
+gid = www-data
 
 die-on-idle = True
-manage-script-name = True
 
 plugins = python
 
-module = wsgi
-callable = app
+module = wsgi:app
