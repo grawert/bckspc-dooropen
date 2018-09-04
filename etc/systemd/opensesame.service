@@ -1,0 +1,15 @@
+[Unit]
+Description=uWSGI app opensesame
+After=syslog.target
+
+[Service]
+ExecStart=/usr/bin/uwsgi \
+        --ini /etc/uwsgi/apps-available/opensesame \
+        --socket /var/run/uwsgi/opensesame.socket
+User=www-data
+Group=www-data
+Restart=on-failure
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
