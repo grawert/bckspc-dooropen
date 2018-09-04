@@ -12,4 +12,6 @@ die-on-idle = True
 
 plugins = python
 
-module = wsgi:app
+chdir = /var/www/opensesame
+module = wsgi
+callable = app
