@@ -9,6 +9,37 @@
 
     sudo apt-get install ldap-server ldap-client ldap-utils
 
+### Setup TLS
+
+```
+sudo ldapmodify -Y EXTERNAL -H ldapi:/// <<EOF
+
+dn: cn=config
+changetype: modify
+add: olcTLSCACertificateFile
+olcTLSCACertificateFile: /etc/ldap/pki/ca.cert.pem
+-
+add: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/ldap/pki/server.cert.pem
+-
+add: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/ldap/pki/server.key.pem
+
+EOF
+```
+
+#### Enable LDAPS
+
+/etc/default/slapd:
+```
+SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"
+```
+
+#### Restart OpenLDAP server
+```
+sudo systemctl restart slapd
+```
+
 ### Create new database in OpenLDAP
 
 ```
