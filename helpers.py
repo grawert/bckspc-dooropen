@@ -83,14 +83,16 @@ def log_auth_fail(uid, reason):
         syslog.syslog(syslog.LOG_WARNING, msg)
 
 def get_ldap_connection():
-
-    if 'CAFile' in settings.ldap:
-        ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
-        ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, settings.ldap['CAFile'])
-
     ldap_con = ldap.initialize(settings.ldap['uri'])
     ldap_con.protocol_version = ldap.VERSION3
-    ldap_con.bind_s(settings.ldap['dn'], settings.ldap['password'])
+
+    if 'CAFile' in settings.ldap:
+        ldap_con.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
+        ldap_con.set_option(ldap.OPT_X_TLS_CACERTFILE, settings.ldap['CAFile'])
+        ldap_con.set_option(ldap.OPT_X_TLS_NEWCTX, 0)
+        ldap_con.start_tls_s()
+
+    ldap_con.simple_bind_s(settings.ldap['dn'], settings.ldap['password'])
 
     return ldap_con
 
@@ -119,9 +121,16 @@ def verify_password(uid, password):
     try:
         if uid not in get_members():
             raise Exception('User not found in members group')
-
+        
         ldap_con = ldap.initialize(settings.ldap['uri'])
         ldap_con.protocol_version = ldap.VERSION3
+
+        if 'CAFile' in settings.ldap:
+            ldap_con.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
+            ldap_con.set_option(ldap.OPT_X_TLS_CACERTFILE, settings.ldap['CAFile'])
+            ldap_con.set_option(ldap.OPT_X_TLS_NEWCTX, 0)
+            ldap_con.start_tls_s()
+
         ldap_con.bind_s(userdn, password)
         ldap_con.unbind()
     except Exception as error:
@@ -130,4 +139,3 @@ def verify_password(uid, password):
         verified = True
 
     return verified
-

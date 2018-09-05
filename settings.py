@@ -18,8 +18,8 @@ relais = {
 }
 
 ldap = {
-    'uri': 'ldaps://localhost',
-    'port': 636,
+    'uri': 'ldap://localhost',
+    'CAFile': '/etc/ldap/pki/ca.cert.pem',
     'dn': 'uid=reader,ou=users,dc=b1-systems,dc=de',
     'password': 'secret',
     'members_container': 'cn=dooropen,ou=groups,dc=b1-systems,dc=de',
