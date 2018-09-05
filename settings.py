@@ -1,6 +1,11 @@
 logging = True
 logging_ident = "opensesame"
 
+listen = {
+    'address': '0.0.0.0',
+    'port': 80,
+}
+
 relais = {
     'url': 'http://localhost:5021/',
     'user': 'foo',

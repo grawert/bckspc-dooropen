@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, request
-
+import settings
 import helpers
 
 app = Flask(__name__)
@@ -38,5 +38,4 @@ def ajax_verify():
 
 if __name__ == '__main__':
     app.debug = True
-    app.run(host='0.0.0.0')
-
+    app.run(host=settings.listen['address'], port=settings.listen['port'])
