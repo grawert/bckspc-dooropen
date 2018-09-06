@@ -6,7 +6,7 @@ listen = {
     'port': 80,
 }
 
-relais = {
+pi_buzzer = {
     'url': 'https://localhost:5021/',
     'user': 'foo',
     'passwd': 'bar',

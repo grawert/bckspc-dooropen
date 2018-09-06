@@ -38,7 +38,7 @@ class DoorOperation(threading.Thread):
 
     def __unlock(self):
 
-        functions = settings.relais['functions']
+        functions = settings.pi_buzzer['functions']
 
         # set door summer
         if 'buzzer' in functions:
@@ -56,7 +56,7 @@ class DoorOperation(threading.Thread):
 
     def __lock(self):
 
-        functions = settings.relais['functions']
+        functions = settings.pi_buzzer['functions']
 
         # close the door
         self.__switch_relais(functions['close'], True)
@@ -65,15 +65,17 @@ class DoorOperation(threading.Thread):
 
     def __switch_relais(self, relais, on):
 
-        url = settings.relais['url'] + str(relais)
-        basic_auth = HTTPBasicAuth(settings.relais['user'], settings.relais['passwd'])
+        url = settings.pi_buzzer['url'] + str(relais)
+        basic_auth = HTTPBasicAuth(settings.pi_buzzer['user'], settings.pi_buzzer['passwd'])
 
-        tls_verify = settings.relais['tls_verify']
+        tls_verify = settings.pi_buzzer['tls_verify']
 
         if on:
             response = requests.post(url, auth=basic_auth, verify=tls_verify)
         else:
             response = requests.delete(url, auth=basic_auth, verify=tls_verify)
+
+        return response
 
 def log_action(opentype, uid):
     if settings.logging == True:
@@ -123,7 +125,7 @@ def verify_password(uid, password):
     try:
         if uid not in get_members():
             raise Exception('User not found in members group')
-        
+
         ldap_con = ldap.initialize(settings.ldap['uri'])
         ldap_con.protocol_version = ldap.VERSION3
 
