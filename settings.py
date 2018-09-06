@@ -10,6 +10,7 @@ relais = {
     'url': 'https://localhost:5021/',
     'user': 'foo',
     'passwd': 'bar',
+    'tls_verify': False,
     'functions': {
         'open': 'door_open',
         'close': 'door_close',

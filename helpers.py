@@ -68,10 +68,12 @@ class DoorOperation(threading.Thread):
         url = settings.relais['url'] + str(relais)
         basic_auth = HTTPBasicAuth(settings.relais['user'], settings.relais['passwd'])
 
+        tls_verify = settings.relais['tls_verify']
+
         if on:
-            response = requests.post(url, auth=basic_auth)
+            response = requests.post(url, auth=basic_auth, verify=tls_verify)
         else:
-            response = requests.delete(url, auth=basic_auth)
+            response = requests.delete(url, auth=basic_auth, verify=tls_verify)
 
 def log_action(opentype, uid):
     if settings.logging == True:
