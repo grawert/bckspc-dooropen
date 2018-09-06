@@ -7,7 +7,7 @@ listen = {
 }
 
 relais = {
-    'url': 'http://localhost:5021/',
+    'url': 'https://localhost:5021/',
     'user': 'foo',
     'passwd': 'bar',
     'functions': {
