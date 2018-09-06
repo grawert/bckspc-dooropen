@@ -2,8 +2,15 @@
 
 ## Install software requirements
 
-    sudo apt-get install build-essential libsasl2-dev python-dev libldap2-dev libssl-dev python-pip
+    sudo apt-get install build-essential openssl libsasl2-dev python-dev libldap2-dev libssl-dev python-pip
     pip install -r requirements.txt
+
+## Create self signed certificate for Nginx TLS connections
+
+    sudo mkdir /etc/nginx/pki
+    sudo openssl genrsa -out /etc/nginx/pki/server.key.pem
+    sudo openssl req -new -key /etc/nginx/pki/server.key.pem -out /etc/nginx/pki/server.csr.pem
+    sudo openssl x509 -req -days 365 -in /etc/nginx/pki/server.csr.pem -signkey /etc/nginx/pki/server.key.pem -out /etc/nginx/pki/server.cert.pem
 
 ## Install OpenLDAP Server
 
