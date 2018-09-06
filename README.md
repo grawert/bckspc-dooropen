@@ -11,4 +11,4 @@ via web interface and authentication.
 
 ## Setup
 
-See INSTALL.md
+See [INSTALL.md](INSTALL.md)
