@@ -71,7 +71,7 @@ $(function() {
             setCookie('uid', uid, 1337);
 
             if(opentype == 'Buzzer') {
-                alert("Come in Old Friend");
+                alert("Come in Old Friend! " + result.notice);
 	    } else if(opentype == 'Open') {
                 alert("Your door should open now");
             } else {

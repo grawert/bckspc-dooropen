@@ -20,6 +20,7 @@ def ajax_verify():
     uid = request.form.get('uid')
     password = request.form.get('password')
     opentype = request.form.get('type')
+    notice   = settings.notice['buzzer']
 
     if helpers.verify_password(uid, password):
 
@@ -32,7 +33,7 @@ def ajax_verify():
         elif opentype == 'Close':
             door_operator.close_door()
 
-        return jsonify(response=True)
+        return jsonify(response=True, notice=notice)
 
     return jsonify(response=False)
 

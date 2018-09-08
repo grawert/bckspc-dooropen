@@ -6,6 +6,10 @@ listen = {
     'port': 80,
 }
 
+notice = {
+    'buzzer': 'This is your door PIN: 1234',
+}
+
 pi_buzzer = {
     'url': 'https://localhost:5021/',
     'user': 'foo',
