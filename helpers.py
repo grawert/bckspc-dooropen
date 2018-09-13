@@ -65,7 +65,7 @@ class DoorOperation(threading.Thread):
 
     def __switch_relais(self, relais, on):
 
-        url = settings.pi_buzzer['url'] + str(relais)
+        url = settings.pi_buzzer['url'] + '/' + str(relais)
         basic_auth = HTTPBasicAuth(settings.pi_buzzer['user'], settings.pi_buzzer['passwd'])
 
         tls_verify = settings.pi_buzzer['tls_verify']
