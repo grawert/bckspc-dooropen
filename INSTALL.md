@@ -2,23 +2,34 @@
 
 ## Install software requirements
 
-    sudo apt-get install build-essential openssl libsasl2-dev python-dev libldap2-dev libssl-dev python-pip
-    pip install -r requirements.txt
+```shell
+sudo apt-get install build-essential openssl libsasl2-dev python-dev libldap2-dev libssl-dev python-pip
+pip install -r requirements.txt
+```
 
-## Create self signed certificate for Nginx TLS connections
+## Create self signed certificate for Nginx and OpenLDAP
 
-    sudo mkdir /etc/nginx/pki
-    sudo openssl genrsa -out /etc/nginx/pki/server.key.pem
-    sudo openssl req -new -key /etc/nginx/pki/server.key.pem -out /etc/nginx/pki/server.csr.pem
-    sudo openssl x509 -req -days 365 -in /etc/nginx/pki/server.csr.pem -signkey /etc/nginx/pki/server.key.pem -out /etc/nginx/pki/server.cert.pem
+```shell
+sudo mkdir -p /etc/nginx/pki
+sudo openssl genrsa -out /etc/nginx/pki/server.key.pem
+sudo openssl req -new -key /etc/nginx/pki/server.key.pem -out /etc/nginx/pki/server.csr.pem
+sudo openssl x509 -req -days 365 -in /etc/nginx/pki/server.csr.pem -signkey /etc/nginx/pki/server.key.pem -out /etc/nginx/pki/server.cert.pem
+
+sudo mkdir -p /etc/ldap/pki
+sudo openssl genrsa -out /etc/ldap/pki/server.key.pem
+sudo openssl req -new -key /etc/ldap/pki/server.key.pem -out /etc/ldap/pki/server.csr.pem
+sudo openssl x509 -req -days 365 -in /etc/ldap/pki/server.csr.pem -signkey /etc/ldap/pki/server.key.pem -out /etc/ldap/pki/server.cert.pem
+```
 
 ## Install OpenLDAP Server
 
-    sudo apt-get install ldap-server ldap-client ldap-utils
+```shell
+sudo apt-get install ldap-server ldap-client ldap-utils
+```
 
 ### Setup TLS
 
-```
+```shell
 sudo ldapmodify -Y EXTERNAL -H ldapi:/// <<EOF
 
 dn: cn=config
@@ -43,13 +54,14 @@ SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"
 ```
 
 #### Restart OpenLDAP server
-```
+
+```shell
 sudo systemctl restart slapd
 ```
 
 ### Create new database in OpenLDAP
 
-```
+```shell
 sudo ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
 
 dn: olcDatabase=mdb,cn=config
@@ -71,7 +83,7 @@ EOF
 
 ### Add dynamic groups to OpenLDAP schema
 
-```
+```shell
 sudo ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
 
 dn: cn=module{0},cn=config
@@ -82,11 +94,11 @@ olcModuleLoad: dynlist
 EOF
 ```
 
-```
+```shell
 sudo ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/dyngroup.ldif
 ```
 
-```
+```shell
 sudo ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
 
 dn: olcOverlay=dynlist,olcDatabase={2}mdb,cn=config
@@ -99,7 +111,7 @@ EOF
 
 ### Create containers and users
 
-```
+```shell
 sudo ldapadd -Y EXTERNAL -H ldapi:/// <<EOF
 
 dn: dc=b1-systems,dc=de
