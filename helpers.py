@@ -1,9 +1,13 @@
+import os
+import re
+import pytz
+from datetime import date, datetime
+import icalendar
 import threading
 import settings
 import requests
 import syslog
 import Queue
-import time
 import ldap
 import ldap.filter
 
@@ -40,7 +44,7 @@ class DoorOperation(threading.Thread):
 
         functions = settings.pi_buzzer['functions']
 
-        # set door summer
+        # set door buzzer
         if 'buzzer' in functions:
             self.__switch_relais(functions['buzzer'], True)
 
@@ -100,19 +104,8 @@ def get_ldap_connection():
 
     return ldap_con
 
-def get_members():
-    con = get_ldap_connection()
-    basedn = settings.ldap['members_container']
-    search_filter = 'objectClass=%s' % settings.ldap['members_container_class']
-    user_id = settings.ldap['user_id_attribute']
-    entries = con.search_s(basedn, ldap.SCOPE_SUBTREE, search_filter, [user_id])
-
-    users = []
-    for entry in entries:
-        data = entry[1]
-        users = data[user_id]
-
-    return sorted(users)
+def get_allowed_users():
+    return sorted(get_allowed_users_from_ical())
 
 def verify_password(uid, password):
     uid = ldap.filter.escape_filter_chars(uid)
@@ -123,8 +116,8 @@ def verify_password(uid, password):
     verified = False
 
     try:
-        if uid not in get_members():
-            raise Exception('User not found in members group')
+        if uid not in get_allowed_users():
+            raise Exception('User not allowed to authenticate')
 
         ldap_con = ldap.initialize(settings.ldap['uri'])
         ldap_con.protocol_version = ldap.VERSION3
@@ -143,3 +136,63 @@ def verify_password(uid, password):
         verified = True
 
     return verified
+
+def event_is_ongoing(start, end):
+    now = datetime.utcnow()
+    now = now.replace(tzinfo=pytz.utc)
+
+    if not isinstance(start, datetime):
+        start = datetime.combine(start, now.time())
+        start = start.replace(tzinfo=pytz.utc)
+    if not isinstance(end, datetime):
+        end = datetime.combine(end, now.time())
+        end = end.replace(tzinfo=pytz.utc)
+
+   # check date without time of day
+    if not settings.ical['check_time_of_day']:
+        start = start.date()
+        end = end.date()
+        now = now.date()
+
+    return start <= now and end >= now
+
+def extract_uid(mail_to):
+    return re.match('mailto:(.+)@', mail_to).group(1)
+
+def get_allowed_users_from_ical():
+    f_ical = open(settings.ical['file_location'], "r")
+    cal = icalendar.Calendar.from_ical(f_ical.read())
+
+    allowed_users = []
+    for event in cal.walk('vevent'):
+        if event['STATUS'] != 'CONFIRMED':
+          continue
+
+        # check if attendees are defined
+        try:
+            attendees = event.decoded('ATTENDEE')
+        except KeyError:
+           continue
+
+        start = event.decoded('DTSTART')
+        end = event.decoded('DTEND')
+
+        if event_is_ongoing(start, end):
+            for attendee in attendees:
+                allowed_users.append(extract_uid(attendee))
+
+    return set(allowed_users)
+
+def get_allowed_users_from_ldap():
+    con = get_ldap_connection()
+    basedn = settings.ldap['members_container']
+    search_filter = 'objectClass=%s' % settings.ldap['members_container_class']
+    user_id = settings.ldap['user_id_attribute']
+    entries = con.search_s(basedn, ldap.SCOPE_SUBTREE, search_filter, [user_id])
+
+    allowed_users = []
+    for entry in entries:
+        data = entry[1]
+        allowed_users = data[user_id]
+
+    return set(allowed_users)

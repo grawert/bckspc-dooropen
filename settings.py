@@ -34,3 +34,8 @@ ldap = {
     'users_container': 'ou=users,dc=b1-systems,dc=de',
     'user_id_attribute': 'uid',
 }
+
+ical = {
+    'file_location': '/var/tmp/calendar.ics',
+    'check_time_of_day': True,
+}
