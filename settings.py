@@ -7,7 +7,9 @@ listen = {
 }
 
 notice = {
-    'buzzer': 'This is your door PIN: 1234',
+    'open': 'Your door should open now',
+    'close': 'Your door should lock now',
+    'buzzer': 'Come in Old Friend!',
 }
 
 pi_buzzer = {

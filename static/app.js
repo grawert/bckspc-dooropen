@@ -71,11 +71,11 @@ $(function() {
             setCookie('uid', uid, 1337);
 
             if(opentype == 'Buzzer') {
-                alert("Come in Old Friend! " + result.notice);
+                alert(result.notice);
 	    } else if(opentype == 'Open') {
-                alert("Your door should open now");
-            } else {
-                alert("Your door should lock now");
+                alert(result.notice);
+            } else if(opentype == 'Close') {
+                alert(result.notice);
             }
 
         });
