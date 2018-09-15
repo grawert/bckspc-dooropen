@@ -8,7 +8,7 @@ door_operator = helpers.DoorOperation()
 
 @app.route('/')
 def page_main():
-    users = helpers.get_members()
+    users = helpers.get_allowed_users()
     return render_template('door.html', users=users)
 
 @app.route('/verify', methods=["POST"])
