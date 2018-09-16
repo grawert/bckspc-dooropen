@@ -3,7 +3,7 @@ server {
   server_name opensesame;
   ssl_certificate_key	/etc/nginx/pki/server.key.pem;
   ssl_certificate	/etc/nginx/pki/server.cert.pem;
-  ssl_protocols  	TLSv1.1 TLSv1.2;
+  ssl_protocols  	TLSv1.2 TLSv1.3;
 
   location / {
     include uwsgi_params;
