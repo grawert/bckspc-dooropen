@@ -1,0 +1,5 @@
+dooropener (0.2-1) UNRELEASED; urgency=medium
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Uwe Grawert <grawert@b1-systems.de>  Sun, 16 Sep 2018 17:43:55 +0200

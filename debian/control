@@ -1,0 +1,14 @@
+Source: dooropener
+Section: web
+Priority: optional
+Maintainer: Uwe Grawert <grawert@b1-systems.de>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+Homepage: https://github.com/grawert/bckspc-dooropen.git
+Vcs-Git: https://github.com/grawert/bckspc-dooropen/tree/opensesame
+
+Package: dooropener
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Dooropen Application for B1 Office
+ This web application is used for switching a door buzzer via web interface (REST) with basic authentication.
