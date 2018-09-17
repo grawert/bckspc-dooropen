@@ -3,28 +3,36 @@
 ## Install software requirements
 
 ```shell
-sudo apt-get install build-essential openssl libsasl2-dev python-dev libldap2-dev libssl-dev python-pip
+sudo apt-get install build-essential openssl libsasl2-dev python-dev libldap2-dev libssl-dev python-pip ldap-server ldap-client ldap-utils
 pip install -r requirements.txt
 ```
 
 ## Create self signed certificate for Nginx and OpenLDAP
 
 ```shell
-sudo mkdir -p /etc/nginx/pki
-sudo openssl genrsa -out /etc/nginx/pki/server.key.pem
-sudo openssl req -new -key /etc/nginx/pki/server.key.pem -out /etc/nginx/pki/server.csr.pem
-sudo openssl x509 -req -days 365 -in /etc/nginx/pki/server.csr.pem -signkey /etc/nginx/pki/server.key.pem -out /etc/nginx/pki/server.cert.pem
+SSL_DIR=/etc/ssl
+SSL_PRIVATE=$SSL_DIR/private
+SSL_CERTSDIR=$SSL_DIR/certs
 
-sudo mkdir -p /etc/ldap/pki
-sudo openssl genrsa -out /etc/ldap/pki/server.key.pem
-sudo openssl req -new -key /etc/ldap/pki/server.key.pem -out /etc/ldap/pki/server.csr.pem
-sudo openssl x509 -req -days 365 -in /etc/ldap/pki/server.csr.pem -signkey /etc/ldap/pki/server.key.pem -out /etc/ldap/pki/server.cert.pem
-```
+PKI_NGINX=/etc/nginx/pki
+PKI_LDAP=/etc/ldap/pki
 
-## Install OpenLDAP Server
+NGINX_HOSTNAME=$HOSTNAME
+LDAP_HOSTNAME=$HOSTNAME
+LDAP_UID="openldap"
 
-```shell
-sudo apt-get install ldap-server ldap-client ldap-utils
+sudo openssl genrsa -out $SSL_PRIVATE/ca.key.pem
+sudo openssl req -x509 -new -nodes -key $SSL_PRIVATE/ca.key.pem -days 1024 -out $SSL_CERTSDIR/ca.cert.pem -extensions v3_ca -subj "/C=DE/O=B1 Systems GmbH/L=Vohbburg/CN=CA"
+
+sudo mkdir -p $PKI_NGINX
+sudo openssl genrsa -out $PKI_NGINX/server.key.pem
+sudo openssl req -new -key $PKI_NGINX/server.key.pem -out $PKI_NGINX/server.csr.pem -subj "/C=DE/O=B1 Systems GmbH/L=Vohbburg/CN=$NGINX_HOSTNAME"
+sudo openssl x509 -req -days 365 -extensions server -in $PKI_NGINX/server.csr.pem -out $PKI_NGINX/server.cert.pem -CAcreateserial -CAserial $SSL_PRIVATE/CA.srl -CA $SSL_CERTSDIR/ca.cert.pem -CAkey $SSL_PRIVATE/ca.key.pem
+
+sudo mkdir -p $PKI_LDAP
+sudo openssl genrsa -out $PKI_LDAP/server.key.pem && sudo chown ${LDAP_UID}: $PKI_LDAP/server.key.pem
+sudo openssl req -new -key $PKI_LDAP/server.key.pem -out $PKI_LDAP/server.csr.pem -subj "/C=DE/O=B1 Systems GmbH/L=Vohbburg/CN=$LDAP_HOSTNAME"
+sudo openssl x509 -req -days 365 -extensions server -in $PKI_LDAP/server.csr.pem -out $PKI_LDAP/server.cert.pem -CAcreateserial -CAserial $SSL_PRIVATE/CA.srl -CA $SSL_CERTSDIR/ca.cert.pem -CAkey $SSL_PRIVATE/ca.key.pem
 ```
 
 ### Setup TLS
@@ -35,7 +43,7 @@ sudo ldapmodify -Y EXTERNAL -H ldapi:/// <<EOF
 dn: cn=config
 changetype: modify
 add: olcTLSCACertificateFile
-olcTLSCACertificateFile: /etc/ldap/pki/ca.cert.pem
+olcTLSCACertificateFile: /etc/ssl/certs/ca.cert.pem
 -
 add: olcTLSCertificateFile
 olcTLSCertificateFile: /etc/ldap/pki/server.cert.pem
