@@ -169,18 +169,21 @@ def get_allowed_users_from_ical():
         if event['STATUS'] != 'CONFIRMED':
           continue
 
-        # check if attendees are defined
-        try:
-            attendees = event.decoded('ATTENDEE')
-        except KeyError:
-           continue
-
         start = event.decoded('DTSTART')
         end = event.decoded('DTEND')
 
-        if event_is_ongoing(start, end):
-            for attendee in attendees:
-                allowed_users.append(extract_uid(attendee))
+        if not event_is_ongoing(start, end):
+            continue
+
+        attendees = []
+        # check if attendees are defined
+        try:
+            attendees.append(event.decoded('ATTENDEE'))
+        except KeyError:
+           continue
+
+        for attendee in attendees:
+            allowed_users.append(extract_uid(attendee))
 
     return set(allowed_users)
 
