@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import pytz
 import time
 from datetime import date, datetime
@@ -7,14 +8,14 @@ import icalendar
 import threading
 import settings
 import requests
-import syslog
+import logging
 import Queue
 import ldap
 import ldap.filter
 
 from requests.auth import HTTPBasicAuth
 
-syslog.openlog(settings.logging_ident)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 class DoorOperation(threading.Thread):
 
@@ -56,7 +57,7 @@ class DoorOperation(threading.Thread):
 
         # stop door buzzer
         if 'buzzer' in functions:
-            time.sleep(3)
+            time.sleep(5)
             self.__switch_relais(functions['buzzer'], False)
 
     def __lock(self):
@@ -84,12 +85,12 @@ class DoorOperation(threading.Thread):
 
 def log_action(opentype, uid):
     if settings.logging == True:
-        syslog.syslog(syslog.LOG_INFO, ("%s: %s" % (opentype, uid)))
+        logging.info("%s: %s" % (opentype, uid))
 
 def log_auth_fail(uid, reason):
     if settings.logging == True:
         msg = "Password verification failed: %s [%s]" % (uid, reason)
-        syslog.syslog(syslog.LOG_WARNING, msg)
+        logging.warning(msg)
 
 def get_ldap_connection():
     ldap_con = ldap.initialize(settings.ldap['uri'])
@@ -120,6 +121,7 @@ def verify_password(uid, password):
         if uid not in get_allowed_users():
             raise Exception('User not allowed to authenticate')
 
+        logging.debug('Verifying credentials for %s' % uid)
         ldap_con = ldap.initialize(settings.ldap['uri'])
         ldap_con.protocol_version = ldap.VERSION3
 
@@ -176,14 +178,16 @@ def get_allowed_users_from_ical():
             continue
 
         attendees = []
-        # check if attendees are defined
         try:
-            attendees.append(event.decoded('ATTENDEE'))
+            for attendee in event['ATTENDEE']:
+                attendees.append(attendee)
         except KeyError:
            continue
 
         for attendee in attendees:
             allowed_users.append(extract_uid(attendee))
+
+        logging.debug('Allowed users found in calendar: %s' % allowed_users)
 
     return set(allowed_users)
 

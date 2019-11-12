@@ -13,7 +13,7 @@ notice = {
 }
 
 pi_buzzer = {
-    'url': 'https://localhost:5021/',
+    'url': 'http://pi-buzzer:5000/',
     'user': 'foo',
     'passwd': 'bar',
     'tls_verify': False,
@@ -25,12 +25,11 @@ pi_buzzer = {
 }
 
 ldap = {
-    'uri': 'ldap://localhost',
-    'CAFile': '/etc/ldap/pki/ca.cert.pem',
-    'dn': 'uid=reader,ou=users,dc=b1-systems,dc=de',
+    'uri': 'ldap://ldap-server',
+    'dn': 'cn=admin,dc=b1-systems,dc=de',
     'password': 'secret',
-    'members_container': 'cn=dooropen,ou=groups,dc=b1-systems,dc=de',
-    'members_container_class': 'groupOfURLs',
+    'members_container': 'ou=users,dc=b1-systems,dc=de',
+    'members_container_class': 'person',
     'users_container': 'ou=users,dc=b1-systems,dc=de',
     'user_id_attribute': 'uid',
 }
